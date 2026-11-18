@@ -1,0 +1,20 @@
+{
+  "@jupyterlab/mainmenu-extension:plugin": {
+    "menus": [
+      {
+        "id": "jp-mainmenu-help",
+        "items": [
+          {
+            "command": "help:open",
+            "rank": 2,
+            "args": {
+              "text": "Report a Problem",
+              "url": "https://github.com/jupyter/try-jupyter/issues/new/choose",
+              "newBrowserTab": true
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
