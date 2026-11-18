@@ -8,7 +8,7 @@
             "command": "help:open",
             "rank": 2,
             "args": {
-              "text": "Report a Problem",
+              "text": "Report a Problem on GitHub",
               "url": "https://github.com/jupyter/try-jupyter/issues/new/choose",
               "newBrowserTab": true
             }

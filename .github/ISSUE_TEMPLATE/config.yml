@@ -1,25 +1,26 @@
-blank_issues_enabled: false
+blank_issues_enabled: true
 contact_links:
   - name: JupyterLab interface
-    url: https://github.com/jupyterlab/jupyterlab/issues/new?template=bug_report.md
-    about: Menus, file browser, editor or layout misbehave in JupyterLab (the address contains /lab/).
+    url: https://github.com/jupyterlab/jupyterlab/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
+    about: Menus, editor or layout misbehave in JupyterLab (the Try Jupyter address contains /lab/).
   - name: Jupyter Notebook interface
-    url: https://github.com/jupyter/notebook/issues/new?template=bug_report.md
-    about: Menus, file browser, editor or layout misbehave in Jupyter Notebook (the address contains /tree/ or /notebooks/).
+    url: https://github.com/jupyter/notebook/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
+    about: Menus, editor or layout misbehave in Jupyter Notebook (the Try Jupyter address contains /tree/, /notebooks/, /edit/ or /consoles/).
   - name: Python (Pyodide) kernel
-    url: https://github.com/jupyterlite/pyodide-kernel/issues/new?template=bug_report.md
+    url: https://github.com/jupyterlite/pyodide-kernel/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
     about: Code or %pip install fails in a notebook that uses the "Python (Pyodide)" kernel.
-  - name: C++, R, SQLite, Fortran or Python (XPython) kernels
-    url: https://github.com/jupyterlite/xeus/issues/new?template=bug_report.md
+  # Keep in step with KERNELS_TO_KEEP in scripts/filter_xeus_kernels.py.
+  - name: C, C++, R, SQLite, Fortran or Python (XPython) kernels
+    url: https://github.com/jupyterlite/xeus/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
     about: Code fails in a notebook that uses one of these kernels.
   - name: Files and page loading
-    url: https://github.com/jupyterlite/jupyterlite/issues/new?template=bug_report.md
+    url: https://github.com/jupyterlite/jupyterlite/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
     about: Files do not open, save or upload, or the page does not load.
   - name: Terminal
-    url: https://github.com/jupyterlite/terminal/issues/new?template=bug_report.md
+    url: https://github.com/jupyterlite/terminal/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
     about: The terminal does not start or misbehaves.
   - name: AI assistant
-    url: https://github.com/jupyterlab/jupyter-ai-lite/issues/new?template=bug_report.md
+    url: https://github.com/jupyterlab/jupyter-ai-lite/issues/new?template=bug_report.md&title=Try%20Jupyter%3A%20
     about: The chat or the AI assistant misbehaves.
   - name: Questions
     url: https://discourse.jupyter.org/

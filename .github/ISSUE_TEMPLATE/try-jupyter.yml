@@ -1,5 +1,6 @@
 name: Try Jupyter site or example notebooks
 description: An example notebook or the Try Jupyter site is wrong, or you are not sure which part is broken.
+labels: ["bug"]
 body:
   - type: textarea
     id: description
