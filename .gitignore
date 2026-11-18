@@ -123,6 +123,10 @@ cockle-config.json
 .cockle_temp/
 cockle_wasm_env/
 
+# Feedback extension
+feedback/labextension/
+feedback/.yarn/
+
 # UI tests
 ui-tests/*.png
 ui-tests/report.html
