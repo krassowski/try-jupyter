@@ -6,18 +6,12 @@ import { Dialog, ISessionContext, showDialog } from '@jupyterlab/apputils';
 import { PageConfig } from '@jupyterlab/coreutils';
 import { Widget } from '@lumino/widgets';
 
-/**
- * Module federation fills this scope with the packages that the page shares.
- */
-declare const __webpack_share_scopes__: Record<
-  string,
-  Record<string, Record<string, unknown>>
->;
-
 const COMMAND = 'try-jupyter:report-problem';
 
 /**
  * Kernels that jupyterlite-xeus provides on this site.
+ *
+ * Keep in step with KERNELS_TO_KEEP in scripts/filter_xeus_kernels.py.
  */
 const XEUS_KERNELS = new Set([
   'xpython',
@@ -43,6 +37,11 @@ interface IPageContext {
 interface IChoice {
   label: string;
   repository: string;
+  /**
+   * The issue template to open. Repositories that disable blank issues send
+   * an issue URL without a template to their template chooser.
+   */
+  template?: string;
 }
 
 function choices(context: IPageContext): IChoice[] {
@@ -55,14 +54,14 @@ function choices(context: IPageContext): IChoice[] {
   return [
     context.notebookInterface
       ? {
-          label:
-            'The Jupyter Notebook interface: menus, file browser, editing, layout',
-          repository: 'jupyter/notebook'
+          label: 'The Jupyter Notebook interface: menus, editing, layout',
+          repository: 'jupyter/notebook',
+          template: 'bug_report.md'
         }
       : {
-          label:
-            'The JupyterLab interface: menus, file browser, editing, layout',
-          repository: 'jupyterlab/jupyterlab'
+          label: 'The JupyterLab interface: menus, editing, layout',
+          repository: 'jupyterlab/jupyterlab',
+          template: 'bug_report.md'
         },
     {
       label: context.kernelDisplayName
@@ -75,7 +74,11 @@ function choices(context: IPageContext): IChoice[] {
       repository: 'jupyterlite/jupyterlite'
     },
     { label: 'The terminal', repository: 'jupyterlite/terminal' },
-    { label: 'The AI assistant', repository: 'jupyterlab/jupyter-ai-lite' },
+    {
+      label: 'The AI assistant',
+      repository: 'jupyterlab/jupyter-ai-lite',
+      template: 'bug_report.md'
+    },
     {
       label: 'An example notebook, or I am not sure',
       repository: 'jupyter/try-jupyter'
@@ -84,24 +87,19 @@ function choices(context: IPageContext): IChoice[] {
 }
 
 /**
- * The highest version of a package in the share scope of the page.
+ * The version of a package that the site lists in its About dialog.
  */
-function sharedVersion(name: string): string {
-  try {
-    const versions = Object.keys(__webpack_share_scopes__.default[name] ?? {});
-    versions.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-    return versions.pop() ?? 'unknown';
-  } catch {
-    return 'unknown';
-  }
+function siteVersion(name: string): string {
+  const info = JSON.parse(PageConfig.getOption('versionInfo') || '{}');
+  return info[name]?.version ?? 'unknown';
 }
 
-function issueUrl(repository: string, context: IPageContext): string {
-  const lab = sharedVersion('@jupyterlab/application');
+function issueBody(context: IPageContext): string {
+  const lab = siteVersion('@jupyterlab/application');
   const ui = context.notebookInterface
-    ? `Jupyter Notebook ${sharedVersion('@jupyter-notebook/application')} (JupyterLab ${lab})`
+    ? `Jupyter Notebook ${siteVersion('@jupyter-notebook/application')} (JupyterLab ${lab})`
     : `JupyterLab ${lab}`;
-  const body = [
+  return [
     '## Description',
     '',
     '<!-- What did you do, what happened, and what did you expect? -->',
@@ -114,7 +112,14 @@ function issueUrl(repository: string, context: IPageContext): string {
     `- Kernel: ${context.kernelDisplayName ?? 'none'}`,
     `- Browser: ${navigator.userAgent}`
   ].join('\n');
-  return `https://github.com/${repository}/issues/new?${new URLSearchParams({ body })}`;
+}
+
+function issueUrl(choice: IChoice, body: string): string {
+  const query = new URLSearchParams({ title: 'Try Jupyter: ', body });
+  if (choice.template) {
+    query.set('template', choice.template);
+  }
+  return `https://github.com/${choice.repository}/issues/new?${query}`;
 }
 
 /**
@@ -134,7 +139,8 @@ class ChoiceBody extends Widget implements Dialog.IBodyWidget<number> {
       input.type = 'radio';
       input.name = 'try-jupyter-feedback';
       input.value = String(index);
-      input.checked = index === 0;
+      // A bare Enter then reports to jupyter/try-jupyter, which can triage it.
+      input.checked = index === options.length - 1;
       label.append(input, option.label);
       fieldset.appendChild(label);
     });
@@ -142,7 +148,7 @@ class ChoiceBody extends Widget implements Dialog.IBodyWidget<number> {
     const note = document.createElement('p');
     note.className = 'jp-TryJupyterFeedback-note';
     note.textContent =
-      'This opens a new GitHub issue with the details of this page filled in. You need a GitHub account to submit it.';
+      'This opens a new GitHub issue with the details of this page filled in, and copies the details to the clipboard. You need a GitHub account to submit the issue.';
     this.node.appendChild(note);
   }
 
@@ -182,10 +188,17 @@ const plugin: JupyterFrontEndPlugin<void> = {
             Dialog.okButton({ label: 'Continue on GitHub' })
           ]
         });
-        if (result.button.accept && result.value !== null) {
-          const { repository } = options[result.value];
-          window.open(issueUrl(repository, context), '_blank', 'noopener');
+        if (!result.button.accept || result.value === null) {
+          return;
         }
+        const body = issueBody(context);
+        // GitHub may open a template without the body for visitors who cannot write to the repository.
+        await navigator.clipboard?.writeText(body).catch(() => undefined);
+        window.open(
+          issueUrl(options[result.value], body),
+          '_blank',
+          'noopener'
+        );
       }
     });
   }

@@ -27,3 +27,4 @@ Make the edits you wish at that URL, then download the notebook and replace the 
 The `feedback` folder holds a small JupyterLab extension that adds **Help > Report a Problem…** to the site.
 It asks what the problem is about, then opens a pre-filled issue in the repository that matches the answer.
 The answers and their repositories are listed in `feedback/src/index.ts`, and `pixi run build` builds the extension before the site.
+To run `jupyter lite` commands directly, run `pixi run build-feedback` first.
